@@ -1,7 +1,7 @@
 <template>
-  <b-navbar toggleable="md" type="dark" variant="info">
+  <b-navbar toggleable="lg" type="light" variant="faded" :style="style">
     <b-navbar-brand :to="{name:'page',params:{pageName:''}}">
-      Client
+      <img :src="logo" class="img-fluid">
     </b-navbar-brand>
 
     <b-nav-toggle target="nav_collapse"></b-nav-toggle>
@@ -9,7 +9,9 @@
     <b-collapse is-nav id="nav_collapse">
       <b-nav is-nav-bar>
         <div v-for="s in sections" :key="s._id">
-          <b-nav-item v-if="s.children && s.children.length===0" :to="getTo(s)">{{s[lang].title}}</b-nav-item>
+          <b-nav-item v-if="s.children && s.children.length===0" :to="getTo(s)">
+            {{s[lang].title}}
+          </b-nav-item>
           <b-nav-item-dropdown v-else>
             <template slot="button-content">
               <em>{{s[lang].title}}</em>
@@ -39,6 +41,7 @@
 <script>
 import { getDatasQuery } from "@/api/datas.service.js";
 const SubMenu = () => import("./Sub.Component.vue");
+import config from "@/config/dev.json";
 export default {
   computed: {
     language() {
@@ -56,6 +59,31 @@ export default {
     },
     sections() {
       return this.$store.getters.getAllSections;
+    },
+    style() {
+      let theme = this.$store.getters.getSelectedTheme;
+      if (theme) {
+        return [
+          {
+            backgroundColor: theme.navColor
+          }
+        ];
+      }
+      return {};
+    },
+    itemStyle() {
+      return [
+        {
+          color: "blue"
+        }
+      ];
+    },
+    logo() {
+      let path = this.$store.getters.getSelectedTheme.logoPath;
+      if (process.env.NODE_ENV === "development") {
+        path = config.host + this.$store.getters.getSelectedTheme.logoPath;
+      }
+      return path;
     }
   },
   methods: {
@@ -113,7 +141,7 @@ export default {
           getDatasQuery({ "_schema._id": s[this.lang].data }).then(datas => {
             s.children = new Array();
             datas.forEach(newSection => {
-              s.children.push((this.dataToSection(newSection,s)));
+              s.children.push(this.dataToSection(newSection, s));
             });
           });
         }, this);

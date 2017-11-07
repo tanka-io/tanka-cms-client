@@ -16,6 +16,10 @@ Vue.use(BootstrapVue);
 // Font Awesome
 import 'font-awesome/css/font-awesome.min.css'
 
+// Google charts
+import VueCharts from 'vue-charts';
+Vue.use(VueCharts)
+
 // Filters
 import moment from 'moment';
 Vue.filter('formatDate', function (x) {

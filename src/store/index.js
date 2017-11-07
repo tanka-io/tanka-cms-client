@@ -5,6 +5,7 @@ Vue.use(Vuex);
 // Sub Modules
 import PageStore from './pages.store.js'
 import SectionStore from './sections.store.js'
+import ThemeStore from './themes.store.js'
 import UserStore from './user.store.js'
 import UtilStore from './utilities.store.js'
 import LangStore from './lang.store.js'
@@ -15,6 +16,7 @@ export default new Vuex.Store({
     modules: {
         PageStore,
         SectionStore,
+        ThemeStore,
         UserStore,
         UtilStore,
         LangStore,

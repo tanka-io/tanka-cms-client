@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :style="mainStyle">
     <header>
       <MenuComponent></MenuComponent>
     </header>
@@ -21,10 +21,15 @@ export default {
   created() {
     this.$store.dispatch("setLang", this.$route.query.lang);
     this.$store.dispatch("getConfig");
+    this.$store.dispatch("getTheme");
   },
   computed: {
     config() {
       return this.$store.getters.getConfig;
+    },
+    mainStyle(){
+      return [
+      ]
     }
   }
 };
@@ -35,8 +40,8 @@ html,
 body {
   overflow-x: hidden;
 }
-body{
-  margin:0;
+body {
+  margin: 0;
 }
 
 #app {
@@ -45,7 +50,6 @@ body{
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
-
 main {
   text-align: center;
   margin-top: 48px;
@@ -65,4 +69,5 @@ main {
   transform: translateX(15px);
   opacity: 0;
 }
+
 </style>

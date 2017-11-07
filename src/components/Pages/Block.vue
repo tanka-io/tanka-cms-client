@@ -8,6 +8,7 @@
               <h1 v-if="b.type==='title'">{{getValue(b)}}</h1>
               <div v-if="b.type==='text'" v-html="getValue(b)"></div>
               <img v-if="b.type==='image'" :src="getValue(b)" class="img-fluid">
+              <vue-chart v-if="b.type==='chart'" class="img-fluid" :chartType="'Bar'" :columns="columns" :rows="rows" :options="options"></vue-chart>
             </div>
           </div>
         </div>
@@ -81,6 +82,48 @@ export default {
       } else {
         return s;
       }
+    }
+  },
+  computed: {
+    columns() {
+      return [
+        {
+          type: "string",
+          label: "Year"
+        },
+        {
+          type: "number",
+          label: "Sales"
+        },
+        {
+          type: "number",
+          label: "Expenses"
+        }
+      ];
+    },
+    rows() {
+      return [
+        ["2004", 1000, 400],
+        ["2005", 1170, 460],
+        ["2006", 660, 1120],
+        ["2007", 1030, 540]
+      ];
+    },
+    options() {
+      return {
+        title: "Company Performance",
+        hAxis: {
+          title: "Year",
+          minValue: "2004",
+          maxValue: "2007"
+        },
+        vAxis: {
+          title: "",
+          minValue: 300,
+          maxValue: 1200
+        },
+        curveType: "function"
+      };
     }
   }
 };
