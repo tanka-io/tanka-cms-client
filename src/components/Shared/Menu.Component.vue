@@ -9,7 +9,7 @@
     <b-collapse is-nav id="nav_collapse">
       <b-nav is-nav-bar>
         <div v-for="s in sections" :key="s._id">
-          <b-nav-item v-if="s.children && s.children.length===0" :to="{name:'page',params:{pageName:s[lang].target}}">{{s[lang].title}}</b-nav-item>
+          <b-nav-item v-if="s.children && s.children.length===0" :to="getTo(s)">{{s[lang].title}}</b-nav-item>
           <b-nav-item-dropdown v-else>
             <template slot="button-content">
               <em>{{s[lang].title}}</em>
@@ -37,6 +37,7 @@
 </template>
 
 <script>
+import { getDatasQuery } from "@/api/datas.service.js";
 const SubMenu = () => import("./Sub.Component.vue");
 export default {
   computed: {
@@ -60,10 +61,63 @@ export default {
   methods: {
     setLang(l) {
       this.$store.dispatch("setLang", l);
+    },
+    getTo(section) {
+      let query = new Object();
+      query[section[this.lang].data] = "ok";
+      let aux = {
+        name: "page",
+        params: { pageName: section[this.lang].target },
+        query: query
+      };
+      return aux;
+    },
+    dataToSection(d, parentSection) {
+      let data = d[d._schema._title];
+      let section = new Object();
+      //fr
+      section.fr = new Object();
+      section.fr.title = data.name.fr;
+      if (parentSection.fr) {
+        section.fr.target = parentSection.fr.target;
+        section.fr.data = parentSection.fr.data;
+      }
+      //en
+      section.en = new Object();
+      section.en.title = data.name.en;
+      if (parentSection.en) {
+        section.en.target = parentSection.en.target;
+        section.en.data = parentSection.en.data;
+      }
+      //fr
+      section.ar = new Object();
+      section.ar.title = data.name.ar;
+      if (parentSection.ar) {
+        section.ar.target = parentSection.ar.target;
+        section.ar.data = parentSection.ar.data;
+      }
+      section.label = d._label;
+      return section;
     }
   },
   created() {
-    this.$store.dispatch("getAllSections");
+    this.$store.dispatch("getAllSections").then(d => {
+      d
+        .filter(s => {
+          if (s._type === "template") {
+            return true;
+          }
+          return false;
+        }, this)
+        .forEach(s => {
+          getDatasQuery({ "_schema._id": s[this.lang].data }).then(datas => {
+            s.children = new Array();
+            datas.forEach(newSection => {
+              s.children.push((this.dataToSection(newSection,s)));
+            });
+          });
+        }, this);
+    });
   },
   components: {
     SubMenu

@@ -11,7 +11,7 @@ import PagesRouter from './pages.js';
 
 export default new Router({
   routes: [
-    { path: '/', redirect: { name: 'page',params:{pageName:""} } },
+    { path: '/', redirect: { name: 'page', params: { pageName: "" } } },
     {
       path: '/:pageName',
       props: false,
