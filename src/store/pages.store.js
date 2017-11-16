@@ -52,6 +52,9 @@ export default {
                 })
             });
         },
+        setPageForce(context,page){
+            context.commit('setSelectedPage',page);
+        },
         getPagesQueryOne(context,query) {
             return new Promise((resolve, reject) => {
                 getPagesQuery(query).then(page => {

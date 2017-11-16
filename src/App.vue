@@ -1,5 +1,6 @@
 <template>
   <div id="app" :style="mainStyle">
+    <div class="background"></div>
     <header>
       <MenuComponent></MenuComponent>
     </header>
@@ -39,9 +40,17 @@ export default {
 html,
 body {
   overflow-x: hidden;
-}
-body {
   margin: 0;
+} 
+.background{
+  position: fixed;
+  width:100vw;
+  height:100vw;
+  background: url('https://images.techhive.com/images/article/2015/10/mac-macbook-100620597-orig.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  z-index: -1;
+  opacity: 0.5;
 }
 
 #app {
@@ -52,7 +61,9 @@ body {
 }
 main {
   text-align: center;
-  margin-top: 48px;
+  background:rgba(255, 255, 255,1);
+  min-height:100vh;
+  padding-top:40px;
 }
 
 .slide-fade-enter-active {

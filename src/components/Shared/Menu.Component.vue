@@ -92,7 +92,7 @@ export default {
     },
     getTo(section) {
       let query = new Object();
-      query[section[this.lang].data] = "ok";
+      query[section[this.lang].data] = 'ok';
       let aux = {
         name: "page",
         params: { pageName: section[this.lang].target },
@@ -105,21 +105,21 @@ export default {
       let section = new Object();
       //fr
       section.fr = new Object();
-      section.fr.title = data.name.fr;
+      section.fr.title = data.nom.fr;
       if (parentSection.fr) {
         section.fr.target = parentSection.fr.target;
         section.fr.data = parentSection.fr.data;
       }
       //en
       section.en = new Object();
-      section.en.title = data.name.en;
+      section.en.title = data.nom.en;
       if (parentSection.en) {
         section.en.target = parentSection.en.target;
         section.en.data = parentSection.en.data;
       }
       //fr
       section.ar = new Object();
-      section.ar.title = data.name.ar;
+      section.ar.title = data.nom.ar;
       if (parentSection.ar) {
         section.ar.target = parentSection.ar.target;
         section.ar.data = parentSection.ar.data;
@@ -142,6 +142,7 @@ export default {
             s.children = new Array();
             datas.forEach(newSection => {
               s.children.push(this.dataToSection(newSection, s));
+            this.$forceUpdate();
             });
           });
         }, this);

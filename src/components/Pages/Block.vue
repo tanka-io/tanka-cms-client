@@ -8,7 +8,9 @@
               <h1 v-if="b.type==='title'">{{getValue(b)}}</h1>
               <div v-if="b.type==='text'" v-html="getValue(b)"></div>
               <img v-if="b.type==='image'" :src="getValue(b)" class="img-fluid">
-              <vue-chart v-if="b.type==='chart'" class="img-fluid" :chartType="'Bar'" :columns="columns" :rows="rows" :options="options"></vue-chart>
+              <vue-chart v-if="b.type==='chart'" :chartType="'PieChart'" :columns="getColumns(b)" :rows="getRows(b)" :options="options"></vue-chart>
+              <!-- <iframe v-if="b.type==='video'" class="img-fluid" src="https://www.youtube.com/watch?v=TnVRO0g0cF4">
+              </iframe> -->
             </div>
           </div>
         </div>
@@ -47,45 +49,64 @@ export default {
       return "space col-12";
     },
     getValue(b) {
-      let s = "";
-      if (b[this.lang].value) {
-        s = b[this.lang].value;
-      }
-      if (s.indexOf("{{") !== -1) {
-        s = s.split(" ");
-        let data = new Object();
-        Object.assign(data, this.datas);
-        s.forEach((e, i) => {
-          if (
-            e[0] === "{" &&
-            e[1] === "{" &&
-            e[e.length - 1] === "}" &&
-            e[e.length - 2] === "}"
-          ) {
-            e = e.substring(2, e.length - 2);
-            let splited = e.split(".");
-            splited.forEach(v => {
-              if (data[v]) {
-                data = data[v];
-              }
-            }, this);
-            e = data;
-          }
-
-          if (e[this.lang]) {
-            e = e[this.lang];
-          }
-          s[i] = e;
-        }, this);
-
-        return s.join(" ");
+      if (b.type === "text" || b.type === "title") {
+        return this.getStringValue(b);
       } else {
-        return s;
+        return this.getDataFromString(b[this.lang].value);
       }
-    }
-  },
-  computed: {
-    columns() {
+      this.rerender();
+      return b;
+    },
+    getStringValue(b) {
+      let string = b[this.lang].value;
+      while (string.indexOf("{{") !== -1) {
+        let i = string.indexOf("{{");
+        let e = string.indexOf("}}");
+        let auxString = string.substring(i + 2, e);
+        let data = this.getDataFromString(auxString)[this.lang];
+        string = string.slice(0, i) + data + string.slice(e + 2);
+      }
+      return string;
+    },
+    getDataFromString(string) {
+      string = this.cleanVar(string);
+      let keys = string.split(".");
+      let data = new Object();
+      Object.assign(data, this.datas);
+      let error = false;
+      keys.forEach(function(key) {
+        if (data[key]) {
+          data = data[key];
+        } else {
+          error = true;
+          string =
+            "the key '" +
+            new String(key) +
+            "' doesn't exist, please verify that your data contains it \n ";
+        }
+      }, this);
+      if (!error) {
+        return data;
+      } else {
+        this.rerender();
+        return {};
+      }
+    },
+    cleanVar(string) {
+      let i = string.indexOf("{{");
+      let e = string.indexOf("}}");
+      if (i !== -1 && e !== -1) {
+        return string.substring(i + 2, e);
+      }
+      return string;
+    },
+    getColumns(block) {
+      let arr = this.getValue(block);
+      if (arr && arr.length && arr.length === 0 && typeof arr === "object") {
+        alert("unable to find the array of data");
+        let cols = block[this.lang]._columns.split(".");
+        let rows = block[this.lang]._rows.split(".");
+      }
       return [
         {
           type: "string",
@@ -93,38 +114,50 @@ export default {
         },
         {
           type: "number",
-          label: "Sales"
-        },
-        {
-          type: "number",
-          label: "Expenses"
+          label: "shit"
         }
       ];
+      return [];
     },
-    rows() {
-      return [
-        ["2004", 1000, 400],
-        ["2005", 1170, 460],
-        ["2006", 660, 1120],
-        ["2007", 1030, 540]
-      ];
+    getRows(block) {
+      let arr = this.getValue(block);
+      if (arr && arr.length && arr.length === 0 && typeof arr === "object") {
+        alert("unable to find the array of data");
+      }
+      if (arr && arr.length) {
+        let cols = block[this.lang]._columns.split(".");
+        let rows = block[this.lang]._rows.split(".");
+        return arr.map(e => {
+          let arr = new Array();
+          let x = new Object();
+          Object.assign(x, e);
+          cols.forEach(col => {
+            e = e[col];
+          });
+          rows.forEach((row, i) => {
+            x = x[row];
+          });
+          arr.push(x[this.lang]);
+          arr.push(parseInt(e));
+          return arr;
+        });
+      }
+      this.rerender();
+      return [];
     },
-    options() {
-      return {
-        title: "Company Performance",
-        hAxis: {
-          title: "Year",
-          minValue: "2004",
-          maxValue: "2007"
-        },
-        vAxis: {
-          title: "",
-          minValue: 300,
-          maxValue: 1200
-        },
-        curveType: "function"
-      };
+    rerender() {
+      setTimeout(() => {
+        this.$forceUpdate();
+      }, 100);
     }
+  },
+  data() {
+    return {
+      options: {
+        curveType: "function",
+        height: 600
+      }
+    };
   }
 };
 </script>
