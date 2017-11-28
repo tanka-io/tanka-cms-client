@@ -79,9 +79,20 @@ export default {
       ];
     },
     logo() {
-      let path = this.$store.getters.getSelectedTheme.logoPath;
+      let path = "";
+      if (
+        this.$store.getters.getSelectedTheme &&
+        this.$store.getters.getSelectedTheme.logoPath
+      ) {
+        path = this.$store.getters.getSelectedTheme.logoPath;
+      }
       if (process.env.NODE_ENV === "development") {
-        path = config.host + this.$store.getters.getSelectedTheme.logoPath;
+        if (
+          this.$store.getters.getSelectedTheme &&
+          this.$store.getters.getSelectedTheme.logoPath
+        ) {
+          path = config.host + this.$store.getters.getSelectedTheme.logoPath;
+        }
       }
       return path;
     }
@@ -92,7 +103,7 @@ export default {
     },
     getTo(section) {
       let query = new Object();
-      query[section[this.lang].data] = 'ok';
+      query[section[this.lang].data] = "ok";
       let aux = {
         name: "page",
         params: { pageName: section[this.lang].target },
@@ -142,7 +153,7 @@ export default {
             s.children = new Array();
             datas.forEach(newSection => {
               s.children.push(this.dataToSection(newSection, s));
-            this.$forceUpdate();
+              this.$forceUpdate();
             });
           });
         }, this);

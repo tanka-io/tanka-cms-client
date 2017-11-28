@@ -8,8 +8,8 @@
               <h1 v-if="b.type==='title'">{{getValue(b)}}</h1>
               <div v-if="b.type==='text'" v-html="getValue(b)"></div>
               <img v-if="b.type==='image'" :src="getValue(b)" class="img-fluid">
-              <vue-chart v-if="b.type==='chart'" :chartType="'PieChart'" :columns="getColumns(b)" :rows="getRows(b)" :options="options"></vue-chart>
-              <!-- <iframe v-if="b.type==='video'" class="img-fluid" src="https://www.youtube.com/watch?v=TnVRO0g0cF4">
+              <ChartBlock v-if="b.type==='chart'" :block="b" :lang="lang" :datas="datas"></ChartBlock>
+               <!-- <iframe v-if="b.type==='video'" class="img-fluid" src="https://www.youtube.com/watch?v=TnVRO0g0cF4">
               </iframe> -->
             </div>
           </div>
@@ -21,6 +21,7 @@
 
 <script>
 import Block from "@/models/Block.js";
+const ChartBlock = ()=>import('./Plotly.Block.vue');
 export default {
   name: "BlockComponent",
   props: {
@@ -100,64 +101,14 @@ export default {
       }
       return string;
     },
-    getColumns(block) {
-      let arr = this.getValue(block);
-      if (arr && arr.length && arr.length === 0 && typeof arr === "object") {
-        alert("unable to find the array of data");
-        let cols = block[this.lang]._columns.split(".");
-        let rows = block[this.lang]._rows.split(".");
-      }
-      return [
-        {
-          type: "string",
-          label: "Year"
-        },
-        {
-          type: "number",
-          label: "shit"
-        }
-      ];
-      return [];
-    },
-    getRows(block) {
-      let arr = this.getValue(block);
-      if (arr && arr.length && arr.length === 0 && typeof arr === "object") {
-        alert("unable to find the array of data");
-      }
-      if (arr && arr.length) {
-        let cols = block[this.lang]._columns.split(".");
-        let rows = block[this.lang]._rows.split(".");
-        return arr.map(e => {
-          let arr = new Array();
-          let x = new Object();
-          Object.assign(x, e);
-          cols.forEach(col => {
-            e = e[col];
-          });
-          rows.forEach((row, i) => {
-            x = x[row];
-          });
-          arr.push(x[this.lang]);
-          arr.push(parseInt(e));
-          return arr;
-        });
-      }
-      this.rerender();
-      return [];
-    },
     rerender() {
       setTimeout(() => {
         this.$forceUpdate();
       }, 100);
     }
   },
-  data() {
-    return {
-      options: {
-        curveType: "function",
-        height: 600
-      }
-    };
+  components:{
+    ChartBlock
   }
 };
 </script>
