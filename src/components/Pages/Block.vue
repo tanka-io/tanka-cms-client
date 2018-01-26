@@ -1,27 +1,26 @@
 <template>
-  <div class="row">
-    <div class="col-12">
-      <div class="row">
-        <div :class="setClass(block.children)" v-for="b in block.children" :key="b._id">
-          <div class="row">
-            <div class="col-12">
-              <h1 v-if="b.type==='title'">{{getValue(b)}}</h1>
-              <div v-if="b.type==='text'" v-html="getValue(b)"></div>
-              <img v-if="b.type==='image'" :src="getValue(b)" class="img-fluid">
-              <ChartBlock v-if="b.type==='chart'" :block="b" :lang="lang" :datas="datas"></ChartBlock>
-               <!-- <iframe v-if="b.type==='video'" class="img-fluid" src="https://www.youtube.com/watch?v=TnVRO0g0cF4">
+  <div class="columns is-multiline">
+    <div v-for="b in block.children" :class="setClass(b)" :key="b._id">
+      <TitleBlock v-if="b.type==='title'" :block="b" :lang="lang" :datas="datas"></TitleBlock>
+      <TextBlock v-if="b.type==='text'" :block="b" :lang="lang" :datas="datas"></TextBlock>
+      <ImageBlock v-if="b.type==='image'" :block="b" :lang="lang" :datas="datas"></ImageBlock>
+      <ChartBlock v-if="b.type==='chart'" :block="b" :lang="lang" :datas="datas"></ChartBlock>
+      <GraphBlock v-if="b.type==='graph'" :block="b" :lang="lang" :datas="datas"></GraphBlock>
+      <FileBlock v-if="b.type==='file'" :block="b" :lang="lang" :datas="datas"></FileBlock>
+      <!-- <iframe v-if="b.type==='video'" class="img-fluid" src="https://www.youtube.com/watch?v=TnVRO0g0cF4">
               </iframe> -->
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 import Block from "@/models/Block.js";
-const ChartBlock = ()=>import('./Plotly.Block.vue');
+const ChartBlock = () => import("./Chart.Block.vue");
+const TextBlock = () => import("./Text.Block.vue");
+const TitleBlock = () => import("./Title.Block.vue");
+const ImageBlock = () => import("./Image.Block.vue");
+const GraphBlock = () => import("./Graph.Block.vue");
+const FileBlock = () => import("./File.Block.vue");
 export default {
   name: "BlockComponent",
   props: {
@@ -39,76 +38,23 @@ export default {
     }
   },
   methods: {
-    setClass(children) {
-      if (window.innerWidth > 768) {
-        let size = 12;
-        while (size * children.length > 12) {
-          size--;
+    setClass(block) {
+      if (window.innerWidth > 768 && block.size) {
+        if (block.border) {
+          return "space column is-" + block.size + " border";
         }
-        return "space col-" + size;
+        return "space column is-" + block.size;
       }
-      return "space col-12";
-    },
-    getValue(b) {
-      if (b.type === "text" || b.type === "title") {
-        return this.getStringValue(b);
-      } else {
-        return this.getDataFromString(b[this.lang].value);
-      }
-      this.rerender();
-      return b;
-    },
-    getStringValue(b) {
-      let string = b[this.lang].value;
-      while (string.indexOf("{{") !== -1) {
-        let i = string.indexOf("{{");
-        let e = string.indexOf("}}");
-        let auxString = string.substring(i + 2, e);
-        let data = this.getDataFromString(auxString)[this.lang];
-        string = string.slice(0, i) + data + string.slice(e + 2);
-      }
-      return string;
-    },
-    getDataFromString(string) {
-      string = this.cleanVar(string);
-      let keys = string.split(".");
-      let data = new Object();
-      Object.assign(data, this.datas);
-      let error = false;
-      keys.forEach(function(key) {
-        if (data[key]) {
-          data = data[key];
-        } else {
-          error = true;
-          string =
-            "the key '" +
-            new String(key) +
-            "' doesn't exist, please verify that your data contains it \n ";
-        }
-      }, this);
-      if (!error) {
-        return data;
-      } else {
-        this.rerender();
-        return {};
-      }
-    },
-    cleanVar(string) {
-      let i = string.indexOf("{{");
-      let e = string.indexOf("}}");
-      if (i !== -1 && e !== -1) {
-        return string.substring(i + 2, e);
-      }
-      return string;
-    },
-    rerender() {
-      setTimeout(() => {
-        this.$forceUpdate();
-      }, 100);
+      return "space column is-12";
     }
   },
-  components:{
-    ChartBlock
+  components: {
+    ChartBlock,
+    TextBlock,
+    TitleBlock,
+    ImageBlock,
+    GraphBlock,
+    FileBlock
   }
 };
 </script>
@@ -118,5 +64,24 @@ export default {
   width: 100%;
   height: 100%;
   min-width: 0px;
+}
+
+.hoverable:hover {
+  transform: scale(1.02);
+  transition: transform 100ms;
+}
+
+.marginBottom {
+  margin-bottom: 32px;
+}
+
+.border {
+  border: 2px solid lightgrey;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.padding {
+  padding: 8px 8px 8px 8px;
 }
 </style>

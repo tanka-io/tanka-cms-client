@@ -1,41 +1,60 @@
 <template>
-  <b-navbar toggleable="lg" type="light" variant="faded" :style="style">
-    <b-navbar-brand :to="{name:'page',params:{pageName:''}}">
-      <img :src="logo" class="img-fluid">
-    </b-navbar-brand>
-
-    <b-nav-toggle target="nav_collapse"></b-nav-toggle>
-
-    <b-collapse is-nav id="nav_collapse">
-      <b-nav is-nav-bar>
-        <div v-for="s in sections" :key="s._id">
-          <b-nav-item v-if="s.children && s.children.length===0" :to="getTo(s)">
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <router-link :to="{name:'index'}">
+        <img :src="logo" class="image logo">
+      </router-link>
+      <button class="button navbar-burger" @click="toggleMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div :class="menuClass">
+      <div class="navbar-start">
+        <div v-for="s in sections" :key="s._id" :class="setNavClass(s)">
+          <div class="navbar-link" v-if="(!(s.children && s.children.length === 0 ) && s._showAll===true)">
             {{s[lang].title}}
-          </b-nav-item>
-          <b-nav-item-dropdown v-else>
-            <template slot="button-content">
-              <em>{{s[lang].title}}</em>
-            </template>
-            <div v-for="x in s.children" :key="x._id">
-              <SubMenu :sub="x" :lang="lang"></SubMenu>
-            </div>
-          </b-nav-item-dropdown>
+          </div>
+          <div class="navbar-dropdown" v-if="(!(s.children && s.children.length === 0) && s._showAll===true)">
+            <sub-menu :sub="s" :lang="lang" @click="toggleMenu"></sub-menu>
+          </div>
+          <div v-if="(s.children && s.children.length === 0)">
+            <router-link :to="{
+          name: 'page',
+          params: { pageName: s[lang].target }
+        }">
+              {{s[lang].title}}
+            </router-link>
+          </div>
+          <div class="navbar-item" v-if="!(s.children && s.children.length === 0) && s._showAll===false">
+            <router-link :to="{
+          name: 'page',
+          params: { pageName: s[lang]._default },
+          query:{
+            _id:s[lang].data
+          }
+        }">
+              {{s[lang].title}}
+            </router-link>
+          </div>
         </div>
-      </b-nav>
+      </div>
 
-      <b-nav is-nav-bar class="ml-auto">
-        <b-nav-item-dropdown right>
-          <!-- Using button-content slot -->
-          <template slot="button-content">
-            <em>{{language}}</em>
-          </template>
-          <b-dropdown-item @click="setLang('ar')">Arabe</b-dropdown-item>
-          <b-dropdown-item @click="setLang('fr')">Francais</b-dropdown-item>
-          <b-dropdown-item @click="setLang('en')">Englais</b-dropdown-item>
-        </b-nav-item-dropdown>
-      </b-nav>
-    </b-collapse>
-  </b-navbar>
+      <div class="navbar-end">
+        <div class="navbar-item has-dropdown is-hoverable">
+          <div class="navbar-link">
+            {{language}}
+          </div>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" @click="setLang('ar')">Arabe</a>
+            <a class="navbar-item" @click="setLang('fr')">Francais</a>
+            <a class="navbar-item" @click="setLang('en')">Englais</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
 </template>
 
 <script>
@@ -44,6 +63,12 @@ const SubMenu = () => import("./Sub.Component.vue");
 import config from "@/config/dev.json";
 export default {
   computed: {
+    menuClass() {
+      if (this.showMenu) {
+        return "navbar-menu is-active";
+      }
+      return "navbar-menu";
+    },
     language() {
       let lang = this.lang;
       if (lang === "en") {
@@ -72,11 +97,15 @@ export default {
       return {};
     },
     itemStyle() {
-      return [
-        {
-          color: "blue"
-        }
-      ];
+      let theme = this.$store.getters.getSelectedTheme;
+      if (theme) {
+        return [
+          {
+            color: theme.itemColor
+          }
+        ];
+      }
+      return {};
     },
     logo() {
       let path = "";
@@ -99,6 +128,7 @@ export default {
   },
   methods: {
     setLang(l) {
+      this.toggleMenu();
       this.$store.dispatch("setLang", l);
     },
     getTo(section) {
@@ -114,29 +144,30 @@ export default {
     dataToSection(d, parentSection) {
       let data = d[d._schema._title];
       let section = new Object();
-      //fr
-      section.fr = new Object();
-      section.fr.title = data.nom.fr;
-      if (parentSection.fr) {
-        section.fr.target = parentSection.fr.target;
-        section.fr.data = parentSection.fr.data;
-      }
-      //en
-      section.en = new Object();
-      section.en.title = data.nom.en;
-      if (parentSection.en) {
-        section.en.target = parentSection.en.target;
-        section.en.data = parentSection.en.data;
-      }
-      //fr
-      section.ar = new Object();
-      section.ar.title = data.nom.ar;
-      if (parentSection.ar) {
-        section.ar.target = parentSection.ar.target;
-        section.ar.data = parentSection.ar.data;
-      }
+      let langs = ["fr", "ar", "en"];
+      langs.forEach(l => {
+        section[l] = new Object();
+        section[l].title = data[parentSection._subLabel][l];
+        if (parentSection[l]) {
+          section[l].target = parentSection[l].target;
+          section[l].data = parentSection[l].data;
+          section[l]._default = parentSection._default;
+        }
+      });
       section.label = d._label;
+      section._type = parentSection._type;
       return section;
+    },
+    setNavClass(section) {
+      if (section.children && section.children.length === 0) {
+        return "navbar-item";
+      } else {
+        return "navbar-item has-dropdown is-hoverable";
+      }
+    },
+
+    toggleMenu() {
+      this.showMenu = !this.showMenu;
     }
   },
   created() {
@@ -161,10 +192,19 @@ export default {
   },
   components: {
     SubMenu
+  },
+  data() {
+    return {
+      showMenu: false
+    };
   }
 };
 </script>
 
-<style>
-
+<style scoped>
+.logo {
+  height: 32px;
+  margin-top: 12px;
+  margin-left: 12px;
+}
 </style>

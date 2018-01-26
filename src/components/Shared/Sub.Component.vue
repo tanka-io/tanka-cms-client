@@ -1,8 +1,10 @@
 <template>
   <div class="margin-left">
-    <b-dropdown-item active-class="no" :to="goTo">{{title}}</b-dropdown-item>
+    <a class="navbar-item" @click="goTo">
+      {{title}}
+    </a>
     <div v-for="x in sub.children" :key="x._id">
-      <SubMenu :sub="x" :lang="lang"></SubMenu>
+      <SubMenu :sub="x" :lang="lang" @click="$emit('click')"></SubMenu>
     </div>
   </div>
 </template>
@@ -27,18 +29,35 @@ export default {
       }
       return "";
     },
+    itemStyle() {
+      let theme = this.$store.getters.getSelectedTheme;
+      if (theme) {
+        return [
+          {
+            color: theme.itemColor
+          }
+        ];
+      }
+      return {};
+    }
+  },
+  methods: {
     goTo() {
+      this.$emit("click");
       if (this.sub[this.lang]) {
         let query = new Object();
-        if (this.sub._type = "template" && this.sub[this.lang].data) {
+        if ((this.sub._type === "template" && this.sub[this.lang].data)) {
           query._id = this.sub[this.lang].data;
           query.label = this.sub.label;
+          if(this.sub._subLabel){
+            this.sub[this.lang].target = this.sub[this.lang]._default;
+          }
         }
-        return {
+        this.$router.push({
           name: "page",
           params: { pageName: this.sub[this.lang].target },
           query: query
-        };
+        });
       }
       return "";
     }
@@ -48,6 +67,6 @@ export default {
 
 <style scoped>
 .margin-left {
-  margin-left: 8px;
+  margin-left: 12px;
 }
 </style>

@@ -7,10 +7,7 @@ import router from './router'
 // Store
 import store from './store'
 // Bootstrap
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-Vue.use(BootstrapVue);
+import './sass/main.sass';
 
 
 // Font Awesome

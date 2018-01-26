@@ -5,13 +5,15 @@ Vue.use(Router)
 
 // Components
 const PagesRoot = () => import('@/components/Pages/Pages.Root.vue');
+const index = () => import('@/components/Pages/index.vue');
 
 // Routers
 import PagesRouter from './pages.js';
 
 export default new Router({
+  mode:'history',
   routes: [
-    { path: '/', redirect: { name: 'page', params: { pageName: "" } } },
+    { path: '/', component:index,name:"index" },
     {
       path: '/:pageName',
       props: false,

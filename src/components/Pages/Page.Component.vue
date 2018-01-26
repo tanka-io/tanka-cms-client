@@ -1,27 +1,23 @@
 <template>
-  <div class="row">
-    <div class="col-12 marginBottom" v-if="page[lang] && page[lang].title === 'index'">
-      <swiper :options="swiperOption" :height="400">
-        <!-- slides -->
-        <swiper-slide><img class="img-fluid limit-height" src="http://s3.india.com/wp-content/uploads/2017/01/Budget.jpg"></swiper-slide>
-        <swiper-slide><img class="img-fluid limit-height" src="http://lemieuxnoletsyndic.com/wp-content/uploads/2017/05/budgetFederal.jpg"></swiper-slide>
-        <swiper-slide><img class="img-fluid limit-height" src="https://fr.irefeurope.org/SITES/fr.irefeurope.org/local/cache-vignettes/L621xH414/arton4550-72fdf.jpg?1508239653"></swiper-slide>/
-        <!-- Optional controls -->
-        <div class="swiper-pagination" slot="pagination"></div>
-        <div class="swiper-button-prev" slot="button-prev"></div>
-        <div class="swiper-button-next" slot="button-next"></div>
-        <div class="swiper-scrollbar" slot="scrollbar"></div>
-      </swiper>
-    </div>
-    <div class="col-12" v-for="b in page.children" :key="b._id">
-      <BlockComponent :block="b" :lang="lang" :datas="datas"></BlockComponent>
+  <div :class="pageClass">
+    <div class="columns is-multiline">
+      <div class="column is-12" v-if="page.tabs && page.tabs.length>1">
+        <button class="tabs" v-for="(tab,i) in page.tabs" :key="tab[lang].title" @click="setSelectedTab(i)" :style="isSelected(i)">{{tab[lang].title}}</button>
+        <hr>
+      </div>
+      <div class="column is-12" v-if="page.tabs">
+        <div class="columns is-multiline">
+          <div class="column is-12" v-for="(b,i) in page.tabs[selectedTab].children" :key="(''+selectedTab+'dd'+i)">
+            <BlockComponent :block="b" :lang="lang" :datas="datas"></BlockComponent>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 const BlockComponent = () => import("./Block.vue");
-import { swiper, swiperSlide } from "vue-awesome-swiper";
 export default {
   props: {
     page: {
@@ -35,36 +31,56 @@ export default {
     datas: {
       type: Object,
       required: false
+    },
+    pageClass: {
+      type: String,
+      required: true
     }
   },
   components: {
-    BlockComponent,
-    swiper,
-    swiperSlide
+    BlockComponent
   },
   data() {
     return {
-      swiperOption: {
-        autoplay: 2000,
-        direction: "horizontal",
-        pagination: ".swiper-pagination",
-        paginationClickable: true,
-        prevButton: ".swiper-button-prev",
-        nextButton: ".swiper-button-next",
-        scrollbar: ".swiper-scrollbar",
-        mousewheelControl: false,
-        
-      }
+      selectedTab: 0
     };
+  },
+  methods: {
+    setSelectedTab(i) {
+      this.selectedTab = i;
+    },
+    isSelected(i) {
+      if (i === this.selectedTab) {
+        return {
+          borderBottom: "3px solid blue"
+        };
+      }
+      return {};
+    }
   }
 };
 </script>
 
 <style scoped>
-.limit-height{
-  height:400px;
+.limit-height {
+  height: 600px;
 }
-.marginBottom{
-  margin-bottom:48px;
+.marginBottom {
+  margin-bottom: 48px;
+}
+
+.tabs {
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 20px;
+  margin-bottom: 48px;
+  border: none;
+  background: none;
+  font-weight: 900;
+}
+
+.tabs:hover {
+  transform: scale(1.2);
+  transition: transform 200ms;
 }
 </style>

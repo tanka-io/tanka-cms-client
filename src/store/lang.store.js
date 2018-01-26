@@ -1,5 +1,5 @@
 let messages = new Object();
-let language = "fr";
+let language = "ar";
 import("@/assets/translation/ar.json").then(d => {
     messages.ar = d;
 });
@@ -33,8 +33,8 @@ export default {
                 context.commit("setLang", lang);
                 language = lang;
             } else {
-                context.commit("setLang", "fr");
-                language = "fr";
+                context.commit("setLang", "ar");
+                language = "ar";
             }
         }
     }
