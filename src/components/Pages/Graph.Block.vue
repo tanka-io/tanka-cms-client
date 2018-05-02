@@ -1,9 +1,14 @@
 <template>
-  <div>
-    <block-graph :datas="values" :labels="labels" @click="clicked"></block-graph>
-    <div :class="lang==='ar'?' has-text-right':''">
-      <div>{{path.join(" || ")}}</div><br>
-      <button class="button is-primary" @click="reset">{{$store.getters.getMessages[lang]?$store.getters.getMessages[lang].reset:"Reset"}}</button>
+  <div class="columns">
+    <div class="column" v-if="values.map(e=>e>0).reduce((p,c)=>p||c,false)">
+      <block-graph :datas="values" :labels="labels" @click="clicked"></block-graph>
+      <div :class="lang==='ar'?' has-text-right':''">
+        <div>{{path.join(" || ")}}</div><br>
+        <button class="button is-primary" @click="reset">{{$store.getters.getMessages[lang]?$store.getters.getMessages[lang].reset:"Reset"}}</button>
+      </div>
+    </div>
+    <div class="column" v-else>
+      <h4 class="title has-text-centered">{{$store.getters.getMessages[lang].unavailable}}</h4>
     </div>
   </div>
 </template>

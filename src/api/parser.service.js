@@ -31,7 +31,7 @@ function getStringValue(b, lang, datas, options) {
                 });
                 s += "</div>"
                 data = s
-            } else if(typeof data === 'string'){
+            } else if (typeof data === 'string') {
                 // Do nothing basicly
             } else {
                 data = data[lang];
@@ -41,7 +41,7 @@ function getStringValue(b, lang, datas, options) {
     }
     return string;
 }
-function getDataFromString(string, datas, options) {
+export function getDataFromString(string, datas, options) {
     if (string && string !== "") {
         string = cleanVar(string);
         let keys = string.split(".");

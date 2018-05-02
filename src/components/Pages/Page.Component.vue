@@ -2,8 +2,11 @@
   <div :class="pageClass">
     <div class="columns is-multiline">
       <div class="column is-12" v-if="page.tabs && page.tabs.length>1">
-        <button class="tabs" v-for="(tab,i) in page.tabs" :key="tab[lang].title" @click="setSelectedTab(i)" :style="isSelected(i)">{{tab[lang].title}}</button>
-        <hr>
+        <div class="tabs">
+          <ul>
+            <li :class="isActive(i)" v-for="(tab,i) in tabs" :key="i"><a  @click.prevent="setSelectedTab(i)">{{tab[lang].title}}</a></li>
+          </ul>
+        </div>
       </div>
       <div class="column is-12" v-if="page.tabs">
         <div class="columns is-multiline">
@@ -37,6 +40,11 @@ export default {
       required: true
     }
   },
+  computed:{
+    tabs(){
+      return (this.page && this.page.tabs)?this.page.tabs.sort((a,b)=>a.order-b.order):[];
+    }
+  },
   components: {
     BlockComponent
   },
@@ -49,13 +57,11 @@ export default {
     setSelectedTab(i) {
       this.selectedTab = i;
     },
-    isSelected(i) {
+    isActive(i) {
       if (i === this.selectedTab) {
-        return {
-          borderBottom: "3px solid blue"
-        };
+        return "is-active"
       }
-      return {};
+      return "";
     }
   }
 };
@@ -69,18 +75,4 @@ export default {
   margin-bottom: 48px;
 }
 
-.tabs {
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-top: 20px;
-  margin-bottom: 48px;
-  border: none;
-  background: none;
-  font-weight: 900;
-}
-
-.tabs:hover {
-  transform: scale(1.2);
-  transition: transform 200ms;
-}
 </style>
